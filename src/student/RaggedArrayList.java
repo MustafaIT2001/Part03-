@@ -1,10 +1,11 @@
-/**  
+/**
  * File: RaggedArrayList.java
  * ****************************************************************************
- *                           Revision History
+ * Revision History
  * ****************************************************************************
- * 2/3/2025 - Jonathan Peil - Started creating findFront() 
- * 8/2015 - Anne Applin - Added formatting and JavaDoc 
+ * 2/3/2025 - Jonathan Peil - Started creating findFront()
+ * 2/5/2025 - Mustafa Qahtan - Started Part 3 - Task 2 findEnd()
+ * 8/2015 - Anne Applin - Added formatting and JavaDoc
  * 2015 - Bob Boothe - starting code
  * ****************************************************************************
  */
@@ -219,16 +220,42 @@ public class RaggedArrayList<E> implements Iterable<E> {
 
     /**
      * find location after the last matching entry or if no match, it finds
-     * the index of the next larger item this is the position to add a new 
+     * the index of the next larger item this is the position to add a new
      * entry this might be an unused slot at the end of a level 2 array
      *
      * @param item the thing we are searching for a place to put.
      * @return the location where this item should go
+     *
+     * MQ --- Hopefully it works (Not tested) "_"
      */
     public ListLoc findEnd(E item) {
-        // TO DO in part 3
+        // Go through the first level arrays (l1Array)
+        for (int i = 0; i < l1NumUsed; i++) {
+            L2Array l2Array = (L2Array) l1Array[i];
 
-        return null; // when finished should return: new ListLoc(l1,l2);
+            // Keep track of where the item could go if we don’t find it
+            int insertPos = 0;
+
+            for (int j = 0; j < l2Array.numUsed; j++) {
+                int comparison = comp.compare(item, l2Array.items[j]);
+
+                if (comparison == 0) {
+                    // If we find the item, update insertPos to put it after the last match
+                    insertPos = j + 1;
+                } else if (comparison < 0) {
+                    // If the item is smaller than the current one, return the position to insert it
+                    return new ListLoc(i, j);
+                }
+            }
+
+            // If the item is bigger than everything in this level 2 array, put it at the end
+            if (insertPos < l2Array.numUsed) {
+                return new ListLoc(i, insertPos);
+            }
+        }
+
+        // If we haven’t found a spot yet, just add it at the end
+        return new ListLoc(l1NumUsed, 0);
     }
 
     /**
